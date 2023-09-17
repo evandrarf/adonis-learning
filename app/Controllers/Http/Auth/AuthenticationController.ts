@@ -1,44 +1,45 @@
+import { inject } from '@adonisjs/core/build/standalone'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import User from 'App/Models/User'
+import AuthenticationService from 'App/Services/Auth/AuthenticationService'
+import BaseController from '../BaseController'
 
-export default class AuthenticationController {
+@inject()
+export default class AuthenticationController extends BaseController {
+  constructor(private readonly authenticationService: AuthenticationService) {
+    super()
+  }
+
   public async register({ request, response }: HttpContextContract) {
-    // Get username and password from request body json
-    const { username, password } = request.body()
+    try {
+      // call the auth service
+      await this.authenticationService.register(request)
 
-    // Find the user with same username
-    if (await User.findBy('username', username)) {
-      // Return error duplicate if user with that username already exist
-      return response.status(409).json({ status: 'success', message: 'Username Already Exist' })
+      // Return response
+      return this.sendSuccessResponse(response, 'Success Registering New Account', {}, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
     }
-
-    // Create new user to the database
-    const user: User = new User()
-    user.username = username
-    user.password = password
-    await user.save()
-
-    // Return response
-    return response
-      .status(200)
-      .json({ status: 'success', message: 'Success Registering New Account' })
   }
 
   public async login({ auth, request, response }: HttpContextContract) {
-    // Get username and password from request body json
-    const { username, password } = request.body()
+    try {
+      // call the auth service
+      const data = await this.authenticationService.login(auth, request)
 
-    // Generate token
-    const token = await auth.use('api').attempt(username, password)
-
-    // Return response and token
-    return response
-      .status(200)
-      .json({ status: 'success', message: 'Success Login', data: { token } })
+      // Return response and token
+      return this.sendSuccessResponse(response, 'Success Login', data, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
   }
 
   public async getUser({ auth, response }: HttpContextContract) {
-    // Return response and logged in user
-    return response.status(200).json({ status: 'Success', data: { username: auth.user!.username } })
+    try {
+      return this.sendSuccessResponse(response, 'Success Get Current User Data', {
+        username: auth?.user!.username,
+      })
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
   }
 }
