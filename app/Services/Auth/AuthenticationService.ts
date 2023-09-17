@@ -1,0 +1,33 @@
+import { Exception } from '@adonisjs/core/build/standalone'
+import type { RequestContract } from '@ioc:Adonis/Core/Request'
+import { AuthContract } from '@ioc:Adonis/Addons/Auth'
+import User from '../../Models/User'
+import Hash from '@ioc:Adonis/Core/Hash'
+
+export default class AuthenticationService {
+  public async register(request: RequestContract) {
+    const { username, password } = request.body()
+    if (await User.findBy('username', username)) {
+      throw new Exception('Username Already Taken', 409, 'E_DUPLICATE_ENTRY')
+    }
+    const user = new User()
+    user.username = username
+    user.password = password
+    await user.save()
+    return user
+  }
+
+  public async login(auth: AuthContract, request: RequestContract) {
+    const { username, password } = request.body()
+
+    const user = await User.findBy('username', username)
+
+    if (!user || !(await Hash.verify(user?.password, password))) {
+      throw new Exception('Username or Password Incorrect', 401, 'E_AUTHENTICATION_FAILURE')
+    }
+
+    const token = await auth.use('api').generate(user)
+
+    return token
+  }
+}
