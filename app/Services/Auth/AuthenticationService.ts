@@ -9,13 +9,13 @@ import RegisterRequestValidator from 'App/Validators/Auth/RegisterRequestValidat
 export default class AuthenticationService {
   public async register(request: RequestContract) {
     const { username, password } = await request.validate(RegisterRequestValidator)
+
     if (await User.findBy('username', username)) {
       throw new Exception('Username Already Taken', 409, 'E_DUPLICATE_ENTRY')
     }
-    const user = new User()
-    user.username = username
-    user.password = password
-    await user.save()
+
+    const user = await User.create({ username, password })
+
     return user
   }
 
