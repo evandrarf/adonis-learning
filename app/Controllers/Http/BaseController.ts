@@ -11,6 +11,13 @@ export default class BaseController {
   }
 
   public sendErrorResponse(response: ResponseContract, error: any) {
+    if (error.status === 422) {
+      return response.status(error.status).json({
+        status: 'error',
+        code: 'E_VALIDATION_FAILURE',
+        message: error.messages.errors.map((msg) => msg.message),
+      })
+    }
     if (error.status) {
       return response.status(error.status).json({ status: 'error', message: error.message })
     }
