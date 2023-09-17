@@ -7,7 +7,9 @@ export default class BaseController {
     data: object = {},
     statusCode: number = 200
   ) {
-    return response.status(statusCode).json({ status: 'success', message, data })
+    return response
+      .status(statusCode)
+      .json({ status: 'success', message, ...(Object.keys(data).length !== 0 && { data }) })
   }
 
   public sendErrorResponse(response: ResponseContract, error: any) {
