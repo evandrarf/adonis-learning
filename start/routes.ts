@@ -20,10 +20,14 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 import authRoutes from './routes/auth'
+import postRoutes from './routes/post'
 
 Route.group(() => {
   Route.group(() => {
     authRoutes()
+    Route.group(() => {
+      postRoutes()
+    }).middleware('auth:api')
   })
     .prefix('v1')
     .as('v1')
