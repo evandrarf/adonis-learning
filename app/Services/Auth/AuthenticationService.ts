@@ -28,7 +28,7 @@ export default class AuthenticationService {
       throw new Exception('Username or Password Incorrect', 401, 'E_AUTHENTICATION_FAILURE')
     }
 
-    const token = await auth.use('api').generate(user)
+    const token = await auth.use('api').generate(user, { expiresIn: 86400 })
 
     return token
   }
