@@ -31,4 +31,38 @@ export default class PostsController extends BaseController {
       return this.sendErrorResponse(response, error)
     }
   }
+
+  public async show({ response, params: { id } }: HttpContextContract) {
+    try {
+      const data = await this.postService.show(id)
+
+      return this.sendSuccessResponse(response, 'Success get post detail', data, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
+  }
+
+  public async update({ auth, request, response, params: { id } }: HttpContextContract) {
+    try {
+      const user: User = auth.user as User
+
+      const data = await this.postService.update(user, request, id)
+
+      return this.sendSuccessResponse(response, 'Success update post', data, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
+  }
+
+  public async delete({ auth, response, params: { id } }: HttpContextContract) {
+    try {
+      const user: User = auth.user as User
+
+      await this.postService.delete(user, id)
+
+      return this.sendSuccessResponse(response, 'Success delete post', {}, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
+  }
 }
