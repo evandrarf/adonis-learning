@@ -4,7 +4,10 @@ export default () => {
   return Route.group(() => {
     Route.post('/login', 'Auth/AuthenticationController.login').as('login')
     Route.post('/register', 'Auth/AuthenticationController.register').as('register')
-    Route.get('/user', 'Auth/AuthenticationController.getUser')
+    Route.group(() => {
+      Route.get('/user', 'Auth/AuthenticationController.getUser').as('getUser')
+      Route.delete('/logout', 'Auth/AuthenticationController.logout').as('logout')
+    })
       .middleware('auth:api')
       .as('get-user')
   })

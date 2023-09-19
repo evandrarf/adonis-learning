@@ -42,4 +42,14 @@ export default class AuthenticationController extends BaseController {
       return this.sendErrorResponse(response, error)
     }
   }
+
+  public async logout({ auth, response }: HttpContextContract) {
+    try {
+      await auth.use('api').revoke()
+
+      return this.sendSuccessResponse(response, 'Success Logout', {}, 200)
+    } catch (error) {
+      return this.sendErrorResponse(response, error)
+    }
+  }
 }
